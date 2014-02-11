@@ -11,9 +11,13 @@ Properties:
 * Uses Jackson parser which is included in the jar
 * Builds with maven
 
-**Example output**
+**Example**
 
-TODO (show array and object)
+input:
+![input](https://bitbucket.org/bartswen/bsonify/raw/master/input.png)
+
+output:
+![output](https://bitbucket.org/bartswen/bsonify/raw/master/output.png)
 
 **Install**
 
