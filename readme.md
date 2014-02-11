@@ -13,10 +13,12 @@ Properties:
 
 **Example**
 
-input:
+input:  
+
 ![input](https://bitbucket.org/bartswen/bsonify/raw/master/input.png)
 
-output:
+output:  
+
 ![output](https://bitbucket.org/bartswen/bsonify/raw/master/output.png)
 
 **Install**
