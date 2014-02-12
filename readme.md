@@ -9,7 +9,7 @@ Properties:
 * Uses colors for Bash shell (and cygwin)
 * Java application
 * Uses Jackson parser which is included in the jar
-* Builds with maven
+* Builds with maven3
 
 **Example**
 
@@ -33,8 +33,8 @@ output:
 
 **Usage examples**
 
-    tail logfile.txt | java -jar jsonify-0.1.jar
-    cat target/test-classes/test-input.txt | java -jar target/jsonify-0.1.jar
+- `cat target/test-classes/test-input.txt | java -jar target/bsonify-0.1.jar`
+- `tail logfile.txt | java -jar bsonify-0.1.jar`
 
 **Todo**
 

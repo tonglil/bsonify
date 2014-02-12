@@ -9,7 +9,7 @@ import java.util.Queue;
 public class JsonModel {
     private int indentLevel;
     
-    private final Queue<Element> elements = new LinkedList<>();
+    private final Queue<Element> elements = new LinkedList<Element>();
 
     public void add(Element el) {
         elements.add(el);

@@ -42,6 +42,9 @@ public class Bsonify {
         int bytesRead;
         isr.mark(READ_AHEAD_LIMIT);
         while ((bytesRead = isr.read(buffer)) != -1) {
+            
+            System.out.print("*"+bytesRead+"*");
+            
             int jsonIndex = findJsonStart(buffer, bytesRead);
             boolean possiblyContainsJson = jsonIndex > -1;
             if (possiblyContainsJson) {
@@ -65,7 +68,7 @@ public class Bsonify {
                 } else {
 
                     // malformed or no JSON, print one char to not interpret it as JSON content in the next round
-                    System.out.print(buffer[0]);
+                    System.out.print(buffer[jsonIndex]);
                     isr.skip(1);
 
                 }
