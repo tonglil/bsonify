@@ -20,13 +20,17 @@ public class MainReaderTest {
         String noJsonStart = "asdf1234~`!@#$%^&*(\"):;\"']}=+-\n_,.<>/?";
         Reader in = new StringReader(noJsonStart);
         Writer out = new StringWriter();
-        MainReader.formatStream(out, in);
+        MainReader.formatStream(out, in, ColorScheme.DARK);
 
         Assert.assertEquals(noJsonStart, out.toString());
     }
 
     // TODO testFormatStreamPlainJsonArray and others, after monochrome feature
 
+    /**
+     * Simulates a tail where one thread of execution writes to the character stream, and another thread executes reads it and
+     * runs the Bsonify filter.
+     */
     @Test @Ignore
     public void testFormatStreamStreaming() throws IOException {
 
@@ -34,46 +38,36 @@ public class MainReaderTest {
         PipedInputStream pis = new PipedInputStream(sender);
         Reader isr = new InputStreamReader(pis);
 
-        final StringWriter sw = new StringWriter();
-
+        // for the writer thread 
         final OutputStreamWriter senderWriter = new OutputStreamWriter(sender);
+
+        // for the output of the reader thread 
+        final StringWriter sw = new StringWriter();
 
         Runnable writer = new Runnable() {
             public void run() {
-                sleep(1000);
-                System.out.println("<W>");
-                write(senderWriter, "1234[\"a\"");
-                sleep(1000);
-                System.out.println("<W>");
-                write(senderWriter, ",");
-                sleep(1000);
-                System.out.println("<W>");
-                write(senderWriter, "\"b\"]987");
-                sleep(1000);  // keep write end of pipe open for a while to give the reader some time
+                sleep(100);
+                write(senderWriter, "1234{\"grmbls\": [\"a\"");
+                sleep(100);
+                write(senderWriter, ",\n");
+                sleep(100);
+                write(senderWriter, "\"b\"]}asdf");
             }
         };
         new Thread(writer).start();
 
-        Runnable reader = new Runnable() {
-            private String s = "";
-
-            public void run() {
-                while (s.length() < 100) {
-                    sleep(100);
-                    if (sw.getBuffer().length() > s.length()) {
-                        s = sw.toString();
-//                        System.out.println("<R>" + s);
-                    }
-                }
-            }
-        };
-        new Thread(reader).start();
-
-        // exercise
         try {
-        MainReader.formatStream(sw, isr);
-        }catch(IOException e) {
+            
+            // exercise
+            MainReader.formatStream(sw, isr, ColorScheme.MONO);
+            
+        } catch (IOException e) {
+            
+            // expected exception, broken pipe because the writer is dead
+            
+            // assert TODO
             System.out.println(sw.toString());
+            Assert.fail("assert NYI");
         }
     }
 

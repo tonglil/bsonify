@@ -1,6 +1,6 @@
 package bs.bsonify;
 
-import java.io.StringWriter;
+import java.io.Writer;
 
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonToken;
@@ -9,11 +9,10 @@ public class ParsingContext {
 
     private JsonToken token;
     private final JsonParser jp;
-    private final StringWriter target;
+    private final Writer target;
     private final JsonModel model;
-    private int jsonCharsCount = 0;;
 
-    public ParsingContext(JsonParser jp, StringWriter target, JsonToken token, JsonModel model) {
+    public ParsingContext(JsonParser jp, Writer target, JsonToken token, JsonModel model) {
         super();
         this.token = token;
         this.jp = jp;
@@ -33,19 +32,11 @@ public class ParsingContext {
         return jp;
     }
 
-    public StringWriter target() {
+    public Writer target() {
         return target;
     }
 
     public JsonModel model() {
         return model;
-    }
-
-    public void incrementJsonCharCount(int jsonCharsRead) {
-        jsonCharsCount += jsonCharsRead;
-    }
-
-    public int jsonCharsCount() {
-        return jsonCharsCount;
     }
 }

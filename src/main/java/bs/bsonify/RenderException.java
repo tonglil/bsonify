@@ -8,4 +8,8 @@ public class RenderException extends RuntimeException {
         super(message);
     }
 
+    public RenderException(Throwable cause) {
+        super(cause);
+    }
+
 }

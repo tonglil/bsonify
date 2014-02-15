@@ -1,7 +1,6 @@
 package bs.bsonify;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
 
@@ -13,24 +12,18 @@ import org.codehaus.jackson.impl.JsonParserBase;
 
 public final class JsonFormatter {
 
-    public  static long printJson(Writer writer, Reader r) {
+    public  static long printJson(Writer writer, Reader reader, ColorScheme color) {
         try {
-            StringWriter target = new StringWriter();
             JsonFactory jsonFactory = new JsonFactory();
-            JsonParser jp = jsonFactory.createJsonParser(r);
+            JsonParser jp = jsonFactory.createJsonParser(reader);
             JsonToken token = jp.nextToken();
-            ParsingContext ctx = new ParsingContext(jp, target, token, new JsonModel());
+            ParsingContext ctx = new ParsingContext(jp, writer, token, new JsonModel());
 
-            parseJsonDispatchNewElement(ctx);
+            parseJsonDispatchNewElement(ctx, color);
 
-            Renderer.resetColor(target);
-            writer.write(target.toString());
+            Renderer.resetColor(writer, color);
             
-            // peek into the reader to find out the number of 'JSON' characters read from the inputstream
-            Field inpPtrField = JsonParserBase.class.getDeclaredField("_tokenInputTotal");
-            inpPtrField.setAccessible(true);
-            long charsReadBeforeCurrentToken = (Long) inpPtrField.get(jp);
-            long jsonCharsRead = charsReadBeforeCurrentToken + 1; // last token is 1 char
+            long jsonCharsRead = peekCharsRead(jp);
 
             return jsonCharsRead;
 
@@ -53,53 +46,64 @@ public final class JsonFormatter {
         }
     }
 
-    private static void parseJsonDispatchNewElement(ParsingContext ctx) throws JsonParseException, IOException {
+    /**
+     * peek into the parser to find out the number of 'JSON' characters read from the inputstream
+     */
+    private static long peekCharsRead(JsonParser jp) throws NoSuchFieldException, IllegalAccessException {
+        Field inpPtrField = JsonParserBase.class.getDeclaredField("_tokenInputTotal");
+        inpPtrField.setAccessible(true);
+        long charsReadBeforeCurrentToken = (Long) inpPtrField.get(jp);
+        long jsonCharsRead = charsReadBeforeCurrentToken + 1; // last token is 1 char
+        return jsonCharsRead;
+    }
+
+    private static void parseJsonDispatchNewElement(ParsingContext ctx, ColorScheme color) throws JsonParseException, IOException {
 
         switch (ctx.token()) {
         case START_ARRAY:
-            parseJsonArray(ctx);
+            parseJsonArray(ctx, color);
             break;
         case START_OBJECT:
-            parseJsonObject(ctx);
+            parseJsonObject(ctx, color);
             break;
         case FIELD_NAME:
-            parseJsonFieldName(ctx);
+            parseJsonFieldName(ctx, color);
             break;
         default:
-            parseJsonValue(ctx);
+            parseJsonValue(ctx, color);
         }
     }
 
-    private static void parseJsonObject(ParsingContext ctx) throws JsonParseException, IOException {
+    private static void parseJsonObject(ParsingContext ctx, ColorScheme color) throws JsonParseException, IOException {
 
         ctx.model().add(new Element(ElementType.START_OBJECT, null));
-        Renderer.render(ctx.model(), ctx.target());
+        Renderer.render(ctx.model(), ctx.target(), color);
 
         JsonToken token;
         while ((token = ctx.jp().nextToken()) != JsonToken.END_OBJECT) {
             ctx.setToken(token);
-            parseJsonDispatchNewElement(ctx);
+            parseJsonDispatchNewElement(ctx, color);
         }
 
         ctx.model().add(new Element(ElementType.END_OBJECT, null));
-        Renderer.render(ctx.model(), ctx.target());
+        Renderer.render(ctx.model(), ctx.target(), color);
     }
 
-    private static void parseJsonArray(ParsingContext ctx) throws JsonParseException, IOException {
+    private static void parseJsonArray(ParsingContext ctx, ColorScheme color) throws JsonParseException, IOException {
         ctx.model().add(new Element(ElementType.START_ARRAY, null));
-        Renderer.render(ctx.model(), ctx.target());
+        Renderer.render(ctx.model(), ctx.target(), color);
 
         JsonToken token;
         while ((token = ctx.jp().nextToken()) != JsonToken.END_ARRAY) {
             ctx.setToken(token);
-            parseJsonDispatchNewElement(ctx);
+            parseJsonDispatchNewElement(ctx, color);
         }
 
         ctx.model().add(new Element(ElementType.END_ARRAY, null));
-        Renderer.render(ctx.model(), ctx.target());
+        Renderer.render(ctx.model(), ctx.target(), color);
     }
 
-    private static void parseJsonValue(ParsingContext ctx) throws JsonParseException, IOException {
+    private static void parseJsonValue(ParsingContext ctx, ColorScheme color) throws JsonParseException, IOException {
 
         final String value;
 
@@ -125,14 +129,14 @@ public final class JsonFormatter {
 
         ctx.model().add(new Element(ElementType.VALUE, value));
 
-        Renderer.render(ctx.model(), ctx.target());
+        Renderer.render(ctx.model(), ctx.target(), color);
     }
 
-    private static void parseJsonFieldName(ParsingContext ctx) throws JsonParseException, IOException {
+    private static void parseJsonFieldName(ParsingContext ctx, ColorScheme color) throws JsonParseException, IOException {
 
         ctx.model().add(new Element(ElementType.FIELD_NAME, ctx.jp().getText()));
 
-        Renderer.render(ctx.model(), ctx.target());
+        Renderer.render(ctx.model(), ctx.target(), color);
     }
 
 }

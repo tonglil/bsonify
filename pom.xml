@@ -9,7 +9,7 @@
 
   <name>bsonify</name>
   <url>http://maven.apache.org</url>
-  <description>Echoes a stream and formats any JSON fragments in it</description>
+  <description>Echoes a stream or file and formats any JSON fragments in it</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

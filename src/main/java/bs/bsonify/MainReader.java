@@ -14,7 +14,7 @@ public class MainReader {
 
     private static final int READ_AHEAD_LIMIT = 100000;
 
-    public static void formatStream(Writer writer, Reader reader) throws IOException {
+    public static void formatStream(Writer writer, Reader reader, ColorScheme color) throws IOException {
         Reader isr = new BufferedReader(reader);
 
         char[] buffer = new char[512];
@@ -33,7 +33,7 @@ public class MainReader {
                 isr.skip(jsonIndex);
                 isr.mark(READ_AHEAD_LIMIT);
 
-                long numRead = JsonFormatter.printJson(writer, isr);
+                long numRead = JsonFormatter.printJson(writer, isr, color);
 
                 isr.reset();
 

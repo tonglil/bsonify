@@ -32,12 +32,11 @@ output:
 
 **Usage examples**
 
-- In the sources dir: `cat target/test-classes/test-input.txt | java -jar target/bsonify-0.1.jar`
+- In the project dir: `cat target/test-classes/test-input.txt | java -jar target/bsonify-0.1.jar`
 - Jar installed in ~/java: `tail logfile.txt | java -jar ~/java/bsonify-0.2.jar`
 
 **Todo**
 
-- Monochrome option
 - Multithreaded unit test to simulate a tail
 - Dark and light options, light is default
 - Compact option prints fields and values in one line, specify line length
