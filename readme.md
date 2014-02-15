@@ -23,8 +23,7 @@ output:
 
 **Install**
 
-1. Download the jar file (or build from source)
-1. Make it available on path
+1. Download the jar file (or build from source) into a known location, for example ~/java
 
 **Build from source**
 
@@ -33,12 +32,13 @@ output:
 
 **Usage examples**
 
-- `cat target/test-classes/test-input.txt | java -jar target/bsonify-0.1.jar`
-- `tail logfile.txt | java -jar bsonify-0.1.jar`
+- In the sources dir: `cat target/test-classes/test-input.txt | java -jar target/bsonify-0.1.jar`
+- Jar installed in ~/java: `tail logfile.txt | java -jar ~/java/bsonify-0.2.jar`
 
 **Todo**
 
-- Fix echo part of JSON content after it is formatted (stream)
+- Monochrome option
+- Multithreaded unit test to simulate a tail
 - Dark and light options, light is default
 - Compact option prints fields and values in one line, specify line length
 - Debug option which prints the error, for example when the formatter encounters '{asdf}' in the stream it prints: '{<JSON ISSUE: Unexpected character ('a' (code 97)): was expecting double-quote to start field name>asdf}

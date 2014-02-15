@@ -11,6 +11,7 @@ public class ParsingContext {
     private final JsonParser jp;
     private final StringWriter target;
     private final JsonModel model;
+    private int jsonCharsCount = 0;;
 
     public ParsingContext(JsonParser jp, StringWriter target, JsonToken token, JsonModel model) {
         super();
@@ -40,4 +41,11 @@ public class ParsingContext {
         return model;
     }
 
+    public void incrementJsonCharCount(int jsonCharsRead) {
+        jsonCharsCount += jsonCharsRead;
+    }
+
+    public int jsonCharsCount() {
+        return jsonCharsCount;
+    }
 }
