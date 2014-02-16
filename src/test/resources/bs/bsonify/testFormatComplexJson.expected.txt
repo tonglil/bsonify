@@ -1,9 +1,12 @@
-asdf {
+{
     "employees": [
-        { "firstName":"John", "lastName":"Doe" },
         {
-            "firstName":"Peter",
-            "lastName":"Jones"
+            "firstName": "John",
+            "lastName": "Doe"
+        },
+        {
+            "firstName": "Peter",
+            "lastName": "Jones"
         }
     ],
     "contact": {
@@ -11,15 +14,16 @@ asdf {
         "address": {
             "fieldnameafteroject": {},
             "city": "Amsterdam"
-         }
-     },
+        }
+    },
     "homepage": "http://home.page",
     "keywords": ["package", "dependency", "autoload"],
-    "value": -124.33, "done":false,
+    "value": -124.33,
+    "done": false,
     "nullable": null,
     "emptyarray": [],
-    "lists" : [
-        [ "item1-1", "item1-2", "item1-3" ], 
-        [ "item2-1", "item2-2", "item2-3" ]
-]}
-1234
+    "lists": [
+        ["item1-1", "item1-2", "item1-3"],
+        ["item2-1", "item2-2", "item2-3"]
+    ]
+}

@@ -1,4 +1,5 @@
 package bs.bsonify;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -12,7 +13,7 @@ import org.codehaus.jackson.impl.JsonParserBase;
 
 public final class JsonFormatter {
 
-    public  static long printJson(Writer writer, Reader reader, ColorScheme color) {
+    public static long printJson(Writer writer, Reader reader, ColorScheme color) {
         try {
             JsonFactory jsonFactory = new JsonFactory();
             JsonParser jp = jsonFactory.createJsonParser(reader);
@@ -22,7 +23,7 @@ public final class JsonFormatter {
             parseJsonDispatchNewElement(ctx, color);
 
             Renderer.resetColor(writer, color);
-            
+
             long jsonCharsRead = peekCharsRead(jp);
 
             return jsonCharsRead;
@@ -69,8 +70,18 @@ public final class JsonFormatter {
         case FIELD_NAME:
             parseJsonFieldName(ctx, color);
             break;
+        case VALUE_FALSE:
+        case VALUE_TRUE:
+        case VALUE_NULL:
+        case VALUE_NUMBER_FLOAT:
+        case VALUE_NUMBER_INT:
+            parseJsonNumberTrueFalseOrNullValue(ctx, color);
+            break;
+        case VALUE_STRING:
+            parseJsonStringValue(ctx, color);
+            break;
         default:
-            parseJsonValue(ctx, color);
+            parseJsonNaOrEmbeddedValue(ctx, color);
         }
     }
 
@@ -103,19 +114,26 @@ public final class JsonFormatter {
         Renderer.render(ctx.model(), ctx.target(), color);
     }
 
-    private static void parseJsonValue(ParsingContext ctx, ColorScheme color) throws JsonParseException, IOException {
+    private static void parseJsonNumberTrueFalseOrNullValue(ParsingContext ctx, ColorScheme color) throws JsonParseException,
+            IOException {
+
+        String value = ctx.jp().getText();
+        ctx.model().add(new Element(ElementType.NUMBER_TRUE_FALSE_OR_NULL_VALUE, value));
+        Renderer.render(ctx.model(), ctx.target(), color);
+    }
+
+    private static void parseJsonStringValue(ParsingContext ctx, ColorScheme color) throws JsonParseException, IOException {
+
+        String value = ctx.jp().getText();
+        ctx.model().add(new Element(ElementType.STRING_VALUE, value));
+        Renderer.render(ctx.model(), ctx.target(), color);
+    }
+
+    private static void parseJsonNaOrEmbeddedValue(ParsingContext ctx, ColorScheme color) throws JsonParseException, IOException {
 
         final String value;
 
         switch (ctx.token()) {
-        case VALUE_FALSE:
-        case VALUE_TRUE:
-        case VALUE_NULL:
-        case VALUE_NUMBER_FLOAT:
-        case VALUE_NUMBER_INT:
-        case VALUE_STRING:
-            value = ctx.jp().getText();
-            break;
         case NOT_AVAILABLE:
             value = "-- N.A. --";
             break;
@@ -127,8 +145,7 @@ public final class JsonFormatter {
             break;
         }
 
-        ctx.model().add(new Element(ElementType.VALUE, value));
-
+        ctx.model().add(new Element(ElementType.NA_OR_EMBEDDED_VALUE, value));
         Renderer.render(ctx.model(), ctx.target(), color);
     }
 

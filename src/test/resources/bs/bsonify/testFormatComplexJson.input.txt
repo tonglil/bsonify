@@ -1,4 +1,4 @@
-asdf {
+{
     "employees": [
         { "firstName":"John", "lastName":"Doe" },
         {
@@ -22,4 +22,3 @@ asdf {
         [ "item1-1", "item1-2", "item1-3" ], 
         [ "item2-1", "item2-2", "item2-3" ]
 ]}
-1234

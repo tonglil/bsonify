@@ -2,8 +2,6 @@ package bs.bsonify;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Arrays;
@@ -15,6 +13,8 @@ public class MainReader {
     private static final int READ_AHEAD_LIMIT = 100000;
 
     public static void formatStream(Writer writer, Reader reader, ColorScheme color) throws IOException {
+        
+        // we need mark() and reset() 
         Reader isr = new BufferedReader(reader);
 
         char[] buffer = new char[512];

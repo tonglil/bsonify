@@ -9,66 +9,124 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class MainReaderTest {
     @Test
-    public void testFormatStreamPlainText() throws IOException {
+    public void testFormatPlainText() throws IOException {
         String noJsonStart = "asdf1234~`!@#$%^&*(\"):;\"']}=+-\n_,.<>/?";
         Reader in = new StringReader(noJsonStart);
         Writer out = new StringWriter();
-        MainReader.formatStream(out, in, ColorScheme.DARK);
+        MainReader.formatStream(out, in, ColorScheme.MONO);
 
         Assert.assertEquals(noJsonStart, out.toString());
     }
 
-    // TODO testFormatStreamPlainJsonArray and others, after monochrome feature
+    @Test
+    public void testFormatArray() throws IOException {
+        String input = "[\"a\", \"b\"]";
+        Reader in = new StringReader(input);
+        Writer out = new StringWriter();
+        MainReader.formatStream(out, in, ColorScheme.MONO);
+        
+        String expected="[\"a\", \"b\"]";
+        Assert.assertEquals(expected, out.toString());
+    }
+
+    @Test
+    public void testFormatObject() throws IOException {
+        String input = "{\"a\":\"b\"}";
+        Reader in = new StringReader(input);
+        Writer out = new StringWriter();
+        MainReader.formatStream(out, in, ColorScheme.MONO);
+        
+        String expected="{\n    \"a\": \"b\"\n}";
+        Assert.assertEquals(expected, out.toString());
+    }
+
+    @Test
+    public void testFormatJsonAndText() throws IOException {
+        String input = "asdf{\"a\":\"b\"}1234";
+        Reader in = new StringReader(input);
+        Writer out = new StringWriter();
+        MainReader.formatStream(out, in, ColorScheme.MONO);
+        
+        String expected="asdf{\n    \"a\": \"b\"\n}1234";
+        Assert.assertEquals(expected, out.toString());
+    }
+
+    @Test
+    public void testFormatComplexJson() throws IOException {
+        String input = IOUtils.toString(getClass().getResourceAsStream("testFormatComplexJson.input.txt"));
+        Reader in = new StringReader(input);
+        Writer out = new StringWriter();
+        MainReader.formatStream(out, in, ColorScheme.MONO);
+        
+        String expected=IOUtils.toString(getClass().getResourceAsStream("testFormatComplexJson.expected.txt"));
+        Assert.assertEquals(expected, out.toString());
+    }
 
     /**
      * Simulates a tail where one thread of execution writes to the character stream, and another thread executes reads it and
      * runs the Bsonify filter.
      */
-    @Test @Ignore
-    public void testFormatStreamStreaming() throws IOException {
+    @Test
+    public void testFormatStreaming() throws IOException, InterruptedException {
 
+        // prepare...
         PipedOutputStream sender = new PipedOutputStream();
         PipedInputStream pis = new PipedInputStream(sender);
-        Reader isr = new InputStreamReader(pis);
+        final Reader isr = new InputStreamReader(pis);
 
-        // for the writer thread 
+        // for the writer thread
         final OutputStreamWriter senderWriter = new OutputStreamWriter(sender);
 
-        // for the output of the reader thread 
+        // for the output of the reader thread
         final StringWriter sw = new StringWriter();
 
+        final CountDownLatch writerDone = new CountDownLatch(1);
         Runnable writer = new Runnable() {
             public void run() {
                 sleep(100);
-                write(senderWriter, "1234{\"grmbls\": [\"a\"");
+                write(senderWriter, "12\n");
+                sleep(100);
+                write(senderWriter, "34{\"grmbls\": [\"a\"");
                 sleep(100);
                 write(senderWriter, ",\n");
                 sleep(100);
                 write(senderWriter, "\"b\"]}asdf");
+                sleep(100);
+                writerDone.countDown();
+                sleep(1000);
             }
         };
+
+        Runnable reader = new Runnable() {
+            public void run() {
+                try {
+
+                    // exercise
+                    MainReader.formatStream(sw, isr, ColorScheme.MONO);
+
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+
+        new Thread(reader).start();
         new Thread(writer).start();
 
-        try {
-            
-            // exercise
-            MainReader.formatStream(sw, isr, ColorScheme.MONO);
-            
-        } catch (IOException e) {
-            
-            // expected exception, broken pipe because the writer is dead
-            
-            // assert TODO
-            System.out.println(sw.toString());
-            Assert.fail("assert NYI");
-        }
+        writerDone.await(1, TimeUnit.SECONDS);
+
+        // assert
+        String expected = IOUtils.toString(getClass().getResourceAsStream("testFormatStreaming.expected.txt"));
+        Assert.assertEquals(expected, sw.toString());
     }
 
     private static void sleep(int millis) {

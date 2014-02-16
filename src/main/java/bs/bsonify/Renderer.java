@@ -33,7 +33,7 @@ public final class Renderer {
     private static final CharSequence INDENT = "    ";
 
     public static void render(JsonModel model, Writer target, ColorScheme color) {
-        
+
         final ElementType prev;
 
         try {
@@ -57,8 +57,14 @@ public final class Renderer {
             case FIELD_NAME:
                 renderFieldname(prev, toRender, model, target, color);
                 break;
-            case VALUE:
-                renderValue(prev, toRender, model, target, color);
+            case STRING_VALUE:
+                renderStringValue(prev, toRender, model, target, color);
+                break;
+            case NUMBER_TRUE_FALSE_OR_NULL_VALUE:
+                renderNumberTrueFalseOrNullValue(prev, toRender, model, target, color);
+                break;
+            case NA_OR_EMBEDDED_VALUE:
+                renderNaOrEmbeddedValue(prev, toRender, model, target, color);
                 break;
             case END_ARRAY:
                 renderEndArray(prev, toRender, model, target, color);
@@ -75,7 +81,8 @@ public final class Renderer {
 
     }
 
-    private static void renderOpenOject(ElementType prev, Element toRender, JsonModel model, Writer target, ColorScheme color) throws IOException {
+    private static void renderOpenOject(ElementType prev, Element toRender, JsonModel model, Writer target, ColorScheme color)
+            throws IOException {
         switch (prev) {
         case NONE:
             colorSymbol(target, color);
@@ -93,16 +100,14 @@ public final class Renderer {
         case FIELD_NAME:
             colorSymbol(target, color);
             break;
-        case VALUE:
-            throwUnexpectedElement(ElementType.VALUE, ElementType.START_OBJECT);
-            break;
-        case END_ARRAY:
-            throwUnexpectedElement(ElementType.END_ARRAY, ElementType.START_OBJECT);
-            break;
         case END_OBJECT:
             colorSymbol(target, color).append(COMMA).append(NEWLINE).append(indent(model.indentLevel()));
             break;
-
+        case STRING_VALUE:
+        case NUMBER_TRUE_FALSE_OR_NULL_VALUE:
+        case NA_OR_EMBEDDED_VALUE:
+        case END_ARRAY:
+            throwUnexpectedElement(prev, ElementType.START_OBJECT);
         default:
             break;
         }
@@ -110,13 +115,11 @@ public final class Renderer {
         target.append(OPEN_OBJECT);
     }
 
-    private static void renderOpenArray(ElementType prev, Element toRender, JsonModel model, Writer target, ColorScheme color) throws IOException {
+    private static void renderOpenArray(ElementType prev, Element toRender, JsonModel model, Writer target, ColorScheme color)
+            throws IOException {
         switch (prev) {
         case NONE:
             colorSymbol(target, color);
-            break;
-        case START_OBJECT:
-            throwUnexpectedElement(ElementType.START_OBJECT, ElementType.START_ARRAY);
             break;
         case START_ARRAY:
             model.levelDown();
@@ -125,15 +128,15 @@ public final class Renderer {
         case FIELD_NAME:
             colorSymbol(target, color);
             break;
-        case VALUE:
-            throwUnexpectedElement(ElementType.VALUE, ElementType.START_ARRAY);
-            break;
         case END_ARRAY:
             target.append(COMMA).append(NEWLINE).append(indent(model.indentLevel()));
             break;
+        case START_OBJECT:
+        case STRING_VALUE:
+        case NUMBER_TRUE_FALSE_OR_NULL_VALUE:
+        case NA_OR_EMBEDDED_VALUE:
         case END_OBJECT:
-            throwUnexpectedElement(ElementType.END_OBJECT, ElementType.START_ARRAY);
-            break;
+            throwUnexpectedElement(prev, ElementType.START_ARRAY);
         default:
             break;
         }
@@ -141,20 +144,18 @@ public final class Renderer {
         target.append(OPEN_ARRAY);
     }
 
-    private static void renderFieldname(ElementType prev, Element toRender, JsonModel model, Writer target, ColorScheme color) throws IOException {
+    private static void renderFieldname(ElementType prev, Element toRender, JsonModel model, Writer target, ColorScheme color)
+            throws IOException {
+
         switch (prev) {
-        case NONE:
-            throwUnexpectedElement(ElementType.NONE, ElementType.FIELD_NAME);
         case START_OBJECT:
             model.levelDown();
             target.append(NEWLINE).append(indent(model.indentLevel()));
             colorField(target, color);
             break;
-        case START_ARRAY:
-            throwUnexpectedElement(ElementType.START_ARRAY, ElementType.FIELD_NAME);
-        case FIELD_NAME:
-            throwUnexpectedElement(ElementType.FIELD_NAME, ElementType.FIELD_NAME);
-        case VALUE:
+        case STRING_VALUE:
+        case NUMBER_TRUE_FALSE_OR_NULL_VALUE:
+        case NA_OR_EMBEDDED_VALUE:
             colorSymbol(target, color).append(COMMA).append(NEWLINE).append(indent(model.indentLevel()));
             colorField(target, color);
             break;
@@ -166,6 +167,10 @@ public final class Renderer {
             target.append(COMMA).append(NEWLINE).append(indent(model.indentLevel()));
             colorField(target, color);
             break;
+        case NONE:
+        case START_ARRAY:
+        case FIELD_NAME:
+            throwUnexpectedElement(prev, ElementType.FIELD_NAME);
         default:
             break;
         }
@@ -174,49 +179,93 @@ public final class Renderer {
         target.append(COLON).append(SPACE);
     }
 
-    private static void renderValue(ElementType prev, Element toRender, JsonModel model, Writer target, ColorScheme color) throws IOException {
+    private static void renderStringValue(ElementType prev, Element toRender, JsonModel model, Writer target, ColorScheme color)
+            throws IOException {
         switch (prev) {
-        case NONE:
-            throwUnexpectedElement(ElementType.NONE, ElementType.VALUE);
-        case START_OBJECT:
-            throwUnexpectedElement(ElementType.START_OBJECT, ElementType.VALUE);
+        case START_ARRAY:
+        case FIELD_NAME:
+            colorValue(target, color);
             break;
+        case STRING_VALUE:
+        case NUMBER_TRUE_FALSE_OR_NULL_VALUE:
+        case NA_OR_EMBEDDED_VALUE:
+            colorSymbol(target, color).append(COMMA).append(SPACE);
+            colorValue(target, color);
+            break;
+        case NONE:
+        case START_OBJECT:
+        case END_ARRAY:
+        case END_OBJECT:
+            throwUnexpectedElement(prev, ElementType.STRING_VALUE);
+        default:
+            break;
+        }
+        appendInQuotes(target, toRender.value());
+    }
+
+    private static void renderNumberTrueFalseOrNullValue(ElementType prev, Element toRender, JsonModel model, Writer target,
+            ColorScheme color) throws IOException {
+        switch (prev) {
         case START_ARRAY:
             colorValue(target, color);
             break;
         case FIELD_NAME:
             colorValue(target, color);
             break;
-        case VALUE:
+        case STRING_VALUE:
+        case NUMBER_TRUE_FALSE_OR_NULL_VALUE:
+        case NA_OR_EMBEDDED_VALUE:
             colorSymbol(target, color).append(COMMA).append(SPACE);
             colorValue(target, color);
             break;
+        case NONE:
+        case START_OBJECT:
         case END_ARRAY:
-            throwUnexpectedElement(ElementType.END_ARRAY, ElementType.VALUE);
-            break;
         case END_OBJECT:
-            throwUnexpectedElement(ElementType.END_OBJECT, ElementType.VALUE);
-            break;
+            throwUnexpectedElement(prev, ElementType.NUMBER_TRUE_FALSE_OR_NULL_VALUE);
         default:
             break;
         }
 
-        appendInQuotes(target, toRender.value());
+        target.append(toRender.value());
     }
 
-    private static void renderEndArray(ElementType prev, Element toRender, JsonModel model, Writer target, ColorScheme color) throws IOException {
+    private static void renderNaOrEmbeddedValue(ElementType prev, Element toRender, JsonModel model, Writer target,
+            ColorScheme color) throws IOException {
+
         switch (prev) {
-        case NONE:
-            throwUnexpectedElement(ElementType.NONE, ElementType.END_ARRAY);
-        case START_OBJECT:
-            throwUnexpectedElement(ElementType.START_OBJECT, ElementType.END_ARRAY);
-            break;
         case START_ARRAY:
+            colorValue(target, color);
             break;
         case FIELD_NAME:
-            throwUnexpectedElement(ElementType.FIELD_NAME, ElementType.END_ARRAY);
+            colorValue(target, color);
             break;
-        case VALUE:
+        case STRING_VALUE:
+        case NUMBER_TRUE_FALSE_OR_NULL_VALUE:
+        case NA_OR_EMBEDDED_VALUE:
+            colorSymbol(target, color).append(COMMA).append(SPACE);
+            colorValue(target, color);
+            break;
+        case NONE:
+        case START_OBJECT:
+        case END_ARRAY:
+        case END_OBJECT:
+            throwUnexpectedElement(prev, ElementType.NA_OR_EMBEDDED_VALUE);
+        default:
+            break;
+        }
+
+        target.append(toRender.value());
+    }
+
+    private static void renderEndArray(ElementType prev, Element toRender, JsonModel model, Writer target, ColorScheme color)
+            throws IOException {
+        switch (prev) {
+        case START_ARRAY:
+            break;
+        case STRING_VALUE:
+        case NUMBER_TRUE_FALSE_OR_NULL_VALUE:
+        case NA_OR_EMBEDDED_VALUE:
             colorSymbol(target, color);
             break;
         case END_ARRAY:
@@ -227,6 +276,10 @@ public final class Renderer {
             model.levelUp();
             target.append(NEWLINE).append(indent(model.indentLevel()));
             break;
+        case NONE:
+        case START_OBJECT:
+        case FIELD_NAME:
+            throwUnexpectedElement(prev, ElementType.END_ARRAY);
         default:
             break;
         }
@@ -234,19 +287,14 @@ public final class Renderer {
         target.append(CLOSE_ARRAY);
     }
 
-    private static void renderEndObject(ElementType prev, Element toRender, JsonModel model, Writer target, ColorScheme color) throws IOException {
+    private static void renderEndObject(ElementType prev, Element toRender, JsonModel model, Writer target, ColorScheme color)
+            throws IOException {
         switch (prev) {
-        case NONE:
-            throwUnexpectedElement(ElementType.NONE, ElementType.END_OBJECT);
         case START_OBJECT:
             break;
-        case START_ARRAY:
-            throwUnexpectedElement(ElementType.START_ARRAY, ElementType.END_OBJECT);
-            break;
-        case FIELD_NAME:
-            throwUnexpectedElement(ElementType.FIELD_NAME, ElementType.END_OBJECT);
-            break;
-        case VALUE:
+        case STRING_VALUE:
+        case NUMBER_TRUE_FALSE_OR_NULL_VALUE:
+        case NA_OR_EMBEDDED_VALUE:
             model.levelUp();
             target.append(NEWLINE).append(indent(model.indentLevel()));
             colorSymbol(target, color);
@@ -259,6 +307,10 @@ public final class Renderer {
             model.levelUp();
             target.append(NEWLINE).append(indent(model.indentLevel()));
             break;
+        case NONE:
+        case START_ARRAY:
+        case FIELD_NAME:
+            throwUnexpectedElement(prev, ElementType.END_OBJECT);
         default:
             break;
         }
