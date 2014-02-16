@@ -22,7 +22,7 @@ public class MainReaderTest {
         String noJsonStart = "asdf1234~`!@#$%^&*(\"):;\"']}=+-\n_,.<>/?";
         Reader in = new StringReader(noJsonStart);
         Writer out = new StringWriter();
-        MainReader.formatStream(out, in, ColorScheme.MONO);
+        MainReader.formatStream(out, in, createOptions());
 
         Assert.assertEquals(noJsonStart, out.toString());
     }
@@ -32,9 +32,9 @@ public class MainReaderTest {
         String input = "[\"a\", \"b\"]";
         Reader in = new StringReader(input);
         Writer out = new StringWriter();
-        MainReader.formatStream(out, in, ColorScheme.MONO);
-        
-        String expected="[\"a\", \"b\"]";
+        MainReader.formatStream(out, in, createOptions());
+
+        String expected = "[\"a\", \"b\"]";
         Assert.assertEquals(expected, out.toString());
     }
 
@@ -43,9 +43,9 @@ public class MainReaderTest {
         String input = "{\"a\":\"b\"}";
         Reader in = new StringReader(input);
         Writer out = new StringWriter();
-        MainReader.formatStream(out, in, ColorScheme.MONO);
-        
-        String expected="{\n    \"a\": \"b\"\n}";
+        MainReader.formatStream(out, in, createOptions());
+
+        String expected = "{\n    \"a\": \"b\"\n}";
         Assert.assertEquals(expected, out.toString());
     }
 
@@ -54,9 +54,9 @@ public class MainReaderTest {
         String input = "asdf{\"a\":\"b\"}1234";
         Reader in = new StringReader(input);
         Writer out = new StringWriter();
-        MainReader.formatStream(out, in, ColorScheme.MONO);
-        
-        String expected="asdf{\n    \"a\": \"b\"\n}1234";
+        MainReader.formatStream(out, in, createOptions());
+
+        String expected = "asdf{\n    \"a\": \"b\"\n}1234";
         Assert.assertEquals(expected, out.toString());
     }
 
@@ -65,9 +65,9 @@ public class MainReaderTest {
         String input = IOUtils.toString(getClass().getResourceAsStream("testFormatComplexJson.input.txt"));
         Reader in = new StringReader(input);
         Writer out = new StringWriter();
-        MainReader.formatStream(out, in, ColorScheme.MONO);
-        
-        String expected=IOUtils.toString(getClass().getResourceAsStream("testFormatComplexJson.expected.txt"));
+        MainReader.formatStream(out, in, createOptions());
+
+        String expected = IOUtils.toString(getClass().getResourceAsStream("testFormatComplexJson.expected.txt"));
         Assert.assertEquals(expected, out.toString());
     }
 
@@ -111,7 +111,7 @@ public class MainReaderTest {
                 try {
 
                     // exercise
-                    MainReader.formatStream(sw, isr, ColorScheme.MONO);
+                    MainReader.formatStream(sw, isr, createOptions());
 
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -144,5 +144,11 @@ public class MainReaderTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static Options createOptions() {
+        Options options = new Options();
+        options.setColor(ColorScheme.MONO);
+        return options;
     }
 }

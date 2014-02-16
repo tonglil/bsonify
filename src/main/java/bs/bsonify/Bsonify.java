@@ -13,29 +13,36 @@ public class Bsonify {
 
     public static void main(String[] args) throws IOException {
 
+        Options options = parseArgs(args);
+
         final InputStream in;
-        String filename = filename(args);
-        if (filename != null) {
+        if (options.hasFilename()) {
             in = new FileInputStream(args[0]);
         } else {
             in = System.in;
         }
 
-        ColorScheme color = colorScheme(args);
-
-        MainReader.formatStream(new OutputStreamWriter(System.out), new InputStreamReader(in), color);
+        MainReader.formatStream(new OutputStreamWriter(System.out), new InputStreamReader(in), options);
 
         in.close();
     }
 
-    private static String filename(String[] args) {
+    private static Options parseArgs(String[] args) {
+        Options options = new Options();
         for (String arg : args) {
-            if (!arg.contains("-")) {
-                return arg;
+            if (arg.equals("-mono")) {
+                options.setColor(ColorScheme.MONO);
+            } else if (arg.equals("-dark")) {
+                options.setColor(ColorScheme.DARK);
+            } else if (arg.equals("-compact")) {
+                options.setCompact(true);
+            } else if (!arg.contains("-") && !options.hasFilename()) {
+                options.setFilename(arg);
+            } else {
+                throw new RuntimeException("Unknown option: " + arg);
             }
         }
-
-        return null;
+        return options;
     }
 
     private static ColorScheme colorScheme(String[] args) {

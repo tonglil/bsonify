@@ -7,7 +7,7 @@ Properties:
 * Detects and tries to format all JSON fragments in the input, just echoes it if JSON is malformed
 * Uses indentation and colors
 * Coloring for Bash shell (and cygwin)
-* Java application
+* Java 5 application
 * Uses Jackson parser which is included in the jar
 * Builds with maven3
 
@@ -41,10 +41,7 @@ TODO
 
 **Todo**
 
-v Multithreaded unit test to simulate a tail
-v Format true, false, null and number
 - Print usage
-- Dark and light options, light is default
 - Compact option prints fields and values in one line, specify line length
 - Debug option which prints the error, for example when the formatter encounters '{asdf}' in the stream it prints: `{<JSON ISSUE: Unexpected character ('a' (code 97)): was expecting double-quote to start field name>asdf}`
 

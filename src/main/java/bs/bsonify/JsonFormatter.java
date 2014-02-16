@@ -13,16 +13,18 @@ import org.codehaus.jackson.impl.JsonParserBase;
 
 public final class JsonFormatter {
 
-    public static long printJson(Writer writer, Reader reader, ColorScheme color) {
+    public static long printJson(Writer writer, Reader reader, Options options) {
         try {
             JsonFactory jsonFactory = new JsonFactory();
             JsonParser jp = jsonFactory.createJsonParser(reader);
             JsonToken token = jp.nextToken();
             ParsingContext ctx = new ParsingContext(jp, writer, token, new JsonModel());
 
-            parseJsonDispatchNewElement(ctx, color);
+            Renderer renderer = new Renderer(writer, options);
+            parseJsonDispatchNewElement(ctx, renderer);
+            
 
-            Renderer.resetColor(writer, color);
+            renderer.resetColor();
 
             long jsonCharsRead = peekCharsRead(jp);
 
@@ -58,78 +60,78 @@ public final class JsonFormatter {
         return jsonCharsRead;
     }
 
-    private static void parseJsonDispatchNewElement(ParsingContext ctx, ColorScheme color) throws JsonParseException, IOException {
+    private static void parseJsonDispatchNewElement(ParsingContext ctx, Renderer renderer) throws JsonParseException, IOException {
 
         switch (ctx.token()) {
         case START_ARRAY:
-            parseJsonArray(ctx, color);
+            parseJsonArray(ctx, renderer);
             break;
         case START_OBJECT:
-            parseJsonObject(ctx, color);
+            parseJsonObject(ctx, renderer);
             break;
         case FIELD_NAME:
-            parseJsonFieldName(ctx, color);
+            parseJsonFieldName(ctx, renderer);
             break;
         case VALUE_FALSE:
         case VALUE_TRUE:
         case VALUE_NULL:
         case VALUE_NUMBER_FLOAT:
         case VALUE_NUMBER_INT:
-            parseJsonNumberTrueFalseOrNullValue(ctx, color);
+            parseJsonNumberTrueFalseOrNullValue(ctx, renderer);
             break;
         case VALUE_STRING:
-            parseJsonStringValue(ctx, color);
+            parseJsonStringValue(ctx, renderer);
             break;
         default:
-            parseJsonNaOrEmbeddedValue(ctx, color);
+            parseJsonNaOrEmbeddedValue(ctx, renderer);
         }
     }
 
-    private static void parseJsonObject(ParsingContext ctx, ColorScheme color) throws JsonParseException, IOException {
+    private static void parseJsonObject(ParsingContext ctx, Renderer renderer) throws JsonParseException, IOException {
 
         ctx.model().add(new Element(ElementType.START_OBJECT, null));
-        Renderer.render(ctx.model(), ctx.target(), color);
+        renderer.render(ctx.model());
 
         JsonToken token;
         while ((token = ctx.jp().nextToken()) != JsonToken.END_OBJECT) {
             ctx.setToken(token);
-            parseJsonDispatchNewElement(ctx, color);
+            parseJsonDispatchNewElement(ctx, renderer);
         }
 
         ctx.model().add(new Element(ElementType.END_OBJECT, null));
-        Renderer.render(ctx.model(), ctx.target(), color);
+        renderer.render(ctx.model());
     }
 
-    private static void parseJsonArray(ParsingContext ctx, ColorScheme color) throws JsonParseException, IOException {
+    private static void parseJsonArray(ParsingContext ctx, Renderer renderer) throws JsonParseException, IOException {
         ctx.model().add(new Element(ElementType.START_ARRAY, null));
-        Renderer.render(ctx.model(), ctx.target(), color);
+        renderer.render(ctx.model());
 
         JsonToken token;
         while ((token = ctx.jp().nextToken()) != JsonToken.END_ARRAY) {
             ctx.setToken(token);
-            parseJsonDispatchNewElement(ctx, color);
+            parseJsonDispatchNewElement(ctx, renderer);
         }
 
         ctx.model().add(new Element(ElementType.END_ARRAY, null));
-        Renderer.render(ctx.model(), ctx.target(), color);
+        renderer.render(ctx.model());
     }
 
-    private static void parseJsonNumberTrueFalseOrNullValue(ParsingContext ctx, ColorScheme color) throws JsonParseException,
+    private static void parseJsonNumberTrueFalseOrNullValue(ParsingContext ctx, Renderer renderer) throws JsonParseException,
             IOException {
 
         String value = ctx.jp().getText();
         ctx.model().add(new Element(ElementType.NUMBER_TRUE_FALSE_OR_NULL_VALUE, value));
-        Renderer.render(ctx.model(), ctx.target(), color);
+        renderer.render(ctx.model());
     }
 
-    private static void parseJsonStringValue(ParsingContext ctx, ColorScheme color) throws JsonParseException, IOException {
+    private static void parseJsonStringValue(ParsingContext ctx, Renderer renderer) throws JsonParseException, IOException {
 
         String value = ctx.jp().getText();
         ctx.model().add(new Element(ElementType.STRING_VALUE, value));
-        Renderer.render(ctx.model(), ctx.target(), color);
+        renderer.render(ctx.model());
     }
 
-    private static void parseJsonNaOrEmbeddedValue(ParsingContext ctx, ColorScheme color) throws JsonParseException, IOException {
+    private static void parseJsonNaOrEmbeddedValue(ParsingContext ctx, Renderer renderer) throws JsonParseException, IOException {
 
         final String value;
 
@@ -146,14 +148,14 @@ public final class JsonFormatter {
         }
 
         ctx.model().add(new Element(ElementType.NA_OR_EMBEDDED_VALUE, value));
-        Renderer.render(ctx.model(), ctx.target(), color);
+        renderer.render(ctx.model());
     }
 
-    private static void parseJsonFieldName(ParsingContext ctx, ColorScheme color) throws JsonParseException, IOException {
+    private static void parseJsonFieldName(ParsingContext ctx, Renderer renderer) throws JsonParseException, IOException {
 
         ctx.model().add(new Element(ElementType.FIELD_NAME, ctx.jp().getText()));
 
-        Renderer.render(ctx.model(), ctx.target(), color);
+        renderer.render(ctx.model());
     }
 
 }
