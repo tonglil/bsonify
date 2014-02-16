@@ -113,19 +113,20 @@ public final class Renderer extends Writer {
             break;
         case START_OBJECT:
             model.levelDown();
-            append(NEWLINE).append(indent(model.indentLevel()));
+            appendNewLineAndIndent(model);
             colorSymbol();
             break;
         case START_ARRAY:
             model.levelDown();
-            append(NEWLINE).append(indent(model.indentLevel()));
+            appendNewLineAndIndent(model);
             colorSymbol();
             break;
         case FIELD_NAME:
             colorSymbol();
             break;
         case END_OBJECT:
-            colorSymbol().append(COMMA).append(NEWLINE).append(indent(model.indentLevel()));
+            colorSymbol().append(COMMA);
+            appendNewLineAndIndent(model);
             break;
         case STRING_VALUE:
         case NUMBER_TRUE_FALSE_OR_NULL_VALUE:
@@ -147,13 +148,14 @@ public final class Renderer extends Writer {
             break;
         case START_ARRAY:
             model.levelDown();
-            append(NEWLINE).append(indent(model.indentLevel()));
+            appendNewLineAndIndent(model);
             break;
         case FIELD_NAME:
             colorSymbol();
             break;
         case END_ARRAY:
-            append(COMMA).append(NEWLINE).append(indent(model.indentLevel()));
+            append(COMMA);
+            appendNewLineAndIndent(model);
             break;
         case START_OBJECT:
         case STRING_VALUE:
@@ -174,21 +176,22 @@ public final class Renderer extends Writer {
         switch (prev) {
         case START_OBJECT:
             model.levelDown();
-            append(NEWLINE).append(indent(model.indentLevel()));
-            colorField();
+            appendNewLineAndIndentOnlyIfExpanded(model).colorField();
             break;
         case STRING_VALUE:
         case NUMBER_TRUE_FALSE_OR_NULL_VALUE:
         case NA_OR_EMBEDDED_VALUE:
-            colorSymbol().append(COMMA).append(NEWLINE).append(indent(model.indentLevel()));
-            colorField();
+            colorSymbol().append(COMMA);
+            appendNewLineAndIndentOnlyIfExpanded(model).colorField();
             break;
         case END_ARRAY:
-            append(COMMA).append(NEWLINE).append(indent(model.indentLevel()));
+            append(COMMA);
+            appendNewLineAndIndent(model);
             colorField();
             break;
         case END_OBJECT:
-            append(COMMA).append(NEWLINE).append(indent(model.indentLevel()));
+            append(COMMA);
+            appendNewLineAndIndentOnlyIfExpanded(model);
             colorField();
             break;
         case NONE:
@@ -202,7 +205,7 @@ public final class Renderer extends Writer {
         appendInQuotes(toRender.value());
         append(COLON).append(SPACE);
     }
-
+    
     private void renderStringValue(ElementType prev, Element toRender, JsonModel model)
             throws IOException {
         switch (prev) {
@@ -292,11 +295,11 @@ public final class Renderer extends Writer {
             break;
         case END_ARRAY:
             model.levelUp();
-            append(NEWLINE).append(indent(model.indentLevel()));
+            appendNewLineAndIndentOnlyIfExpanded(model);
             break;
         case END_OBJECT:
             model.levelUp();
-            append(NEWLINE).append(indent(model.indentLevel()));
+            appendNewLineAndIndentOnlyIfExpanded(model);
             break;
         case NONE:
         case START_OBJECT:
@@ -318,16 +321,16 @@ public final class Renderer extends Writer {
         case NUMBER_TRUE_FALSE_OR_NULL_VALUE:
         case NA_OR_EMBEDDED_VALUE:
             model.levelUp();
-            append(NEWLINE).append(indent(model.indentLevel()));
+            appendNewLineAndIndentOnlyIfExpanded(model);
             colorSymbol();
             break;
         case END_ARRAY:
             model.levelUp();
-            append(NEWLINE).append(indent(model.indentLevel()));
+            appendNewLineAndIndentOnlyIfExpanded(model);
             break;
         case END_OBJECT:
             model.levelUp();
-            append(NEWLINE).append(indent(model.indentLevel()));
+            appendNewLineAndIndentOnlyIfExpanded(model);
             break;
         case NONE:
         case START_ARRAY:
@@ -350,6 +353,21 @@ public final class Renderer extends Writer {
             sb.append(INDENT);
         }
         return sb;
+    }
+
+    /** Appends space in compact mode, otherwise in expanded mode appends a newline and the indent */
+    private Renderer appendNewLineAndIndentOnlyIfExpanded(JsonModel model) throws IOException {
+        if (options.compact()) {
+            append(SPACE);
+        } else {
+            append(NEWLINE).append(indent(model.indentLevel()));
+        }
+        return this;
+    }
+
+    private Renderer appendNewLineAndIndent(JsonModel model) throws IOException {
+        append(NEWLINE).append(indent(model.indentLevel()));
+        return this;
     }
 
     private Writer colorSymbol() throws IOException {

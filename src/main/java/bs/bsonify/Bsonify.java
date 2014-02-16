@@ -34,6 +34,8 @@ public class Bsonify {
                 options.setColor(ColorScheme.MONO);
             } else if (arg.equals("-dark")) {
                 options.setColor(ColorScheme.DARK);
+            } else if (arg.equals("-light")) {
+                options.setColor(ColorScheme.LIGHT);
             } else if (arg.equals("-compact")) {
                 options.setCompact(true);
             } else if (!arg.contains("-") && !options.hasFilename()) {
@@ -43,21 +45,6 @@ public class Bsonify {
             }
         }
         return options;
-    }
-
-    private static ColorScheme colorScheme(String[] args) {
-        ColorScheme color = ColorScheme.LIGHT;
-        for (String arg : args) {
-            if (arg.equals("-mono")) {
-                color = ColorScheme.MONO;
-                break;
-            } else if (arg.equals("-dark")) {
-                color = ColorScheme.DARK;
-                break;
-            }
-
-        }
-        return color;
     }
 
 }
