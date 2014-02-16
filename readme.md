@@ -41,7 +41,6 @@ TODO
 
 **Todo**
 
-- Compact option prints fields and values in one line, specify line length
 - Print usage
 - Debug option which prints the error, for example when the formatter encounters '{asdf}' in the stream it prints: `{<JSON ISSUE: Unexpected character ('a' (code 97)): was expecting double-quote to start field name>asdf}`
 
