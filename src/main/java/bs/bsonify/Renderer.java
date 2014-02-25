@@ -118,7 +118,7 @@ public final class Renderer extends Writer {
             break;
         case START_ARRAY:
             model.levelDown();
-            appendNewLineAndIndent(model);
+            appendNewLineAndIndentOnlyIfExpanded(model);
             colorSymbol();
             break;
         case FIELD_NAME:
@@ -126,7 +126,7 @@ public final class Renderer extends Writer {
             break;
         case END_OBJECT:
             colorSymbol().append(COMMA);
-            appendNewLineAndIndent(model);
+            appendNewLineAndIndentOnlyIfExpanded(model);
             break;
         case STRING_VALUE:
         case NUMBER_TRUE_FALSE_OR_NULL_VALUE:
@@ -148,14 +148,14 @@ public final class Renderer extends Writer {
             break;
         case START_ARRAY:
             model.levelDown();
-            appendNewLineAndIndent(model);
+            appendNewLineAndIndentOnlyIfExpanded(model);
             break;
         case FIELD_NAME:
             colorSymbol();
             break;
         case END_ARRAY:
             append(COMMA);
-            appendNewLineAndIndent(model);
+            appendNewLineAndIndentOnlyIfExpanded(model);
             break;
         case START_OBJECT:
         case STRING_VALUE:
@@ -176,7 +176,7 @@ public final class Renderer extends Writer {
         switch (prev) {
         case START_OBJECT:
             model.levelDown();
-            appendNewLineAndIndentOnlyIfExpanded(model).colorField();
+            appendNewLineAndIndent(model).colorField();
             break;
         case STRING_VALUE:
         case NUMBER_TRUE_FALSE_OR_NULL_VALUE:
@@ -191,7 +191,7 @@ public final class Renderer extends Writer {
             break;
         case END_OBJECT:
             append(COMMA);
-            appendNewLineAndIndentOnlyIfExpanded(model);
+            appendNewLineAndIndent(model);
             colorField();
             break;
         case NONE:
@@ -394,7 +394,7 @@ public final class Renderer extends Writer {
             append(BLUE);
             break;
         case LIGHT:
-            append(LIGHT_BLUE);
+            append(BLUE);
             break;
         default:
             break;
@@ -410,7 +410,7 @@ public final class Renderer extends Writer {
             append(GREEN);
             break;
         case LIGHT:
-            append(LIGHT_GREEN);
+            append(GREEN);
             break;
         default:
             break;
