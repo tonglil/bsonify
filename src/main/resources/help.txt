@@ -1,0 +1,14 @@
+Usage: java -jar bsonify.jar [OPTION]... [FILE]...
+Format JSON fragments in FILE, or standard input, to standard output. Copies non-JSON content.
+
+  -mono                    monochrome, no colors
+  -dark                    use dark colors, use this on a light background
+  -light                   use light colors (default), use this on a dark background
+  -compact                 print JSON object properties on one line
+      --help     display this help and exit
+
+With no FILE, read standard input.
+
+Examples:
+  java -jar bsonify.jar f  Copy f's contents to standard output, formatting JSON fragments.
+  java -jar bsonify.jar    Copy standard input to standard output, formatting JSON fragments.

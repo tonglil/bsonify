@@ -33,25 +33,30 @@ output:
 **Usage examples**
 
 Example In the bsonify project:  
-`cat target/test-classes/test-input.txt | java -jar target/bsonify-0.4.jar`
+`cat target/test-classes/test-input.txt | java -jar target/bsonify-1.0.jar`
 
 Jar installed in ~/java:  
-`tail logfile.txt | java -jar ~/java/bsonify-0.4.jar`
+`tail logfile.txt | java -jar ~/java/bsonify-1.0.jar`
 
 In cygwin use windows path for jar file:  
-`tail logfile.txt | java -jar "c:/java/bsonify-0.4.jar"`
+`tail logfile.txt | java -jar "c:/java/bsonify-1.0.jar"`
 
 In cygwin when grepping, use --line-buffered:  
-`tail -F logfile.txt | grep --line-buffered 'SomeLogger' | java -jar "c:/java/bsonify-0.3.jar"`
+`tail -F logfile.txt | grep --line-buffered 'SomeLogger' | java -jar "c:/java/bsonify-1.0.jar"`
 
 **Usage**
 
-TODO
+    Usage: java -jar bsonify.jar [OPTION]... [FILE]...
+    Format JSON fragments in FILE, or standard input, to standard output. Copies non-JSON content.
 
-**Todo**
-- v Fix invalid json
-- Print usage
-- Debug option which prints the error, for example when the formatter encounters '{asdf}' in the stream it prints: `{<JSON ISSUE: Unexpected character ('a' (code 97)): was expecting double-quote to start field name>asdf}`
+      -mono                    monochrome, no colors
+      -dark                    use dark colors, use this on a light background
+      -light                   use light colors (default), use this on a dark background
+      -compact                 print JSON object properties on one line
+          --help     display this help and exit
+
+    With no FILE, read standard input.
+
 
 **Design**
 
