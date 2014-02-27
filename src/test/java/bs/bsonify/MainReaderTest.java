@@ -71,6 +71,17 @@ public class MainReaderTest {
         Assert.assertEquals(expected, out.toString());
     }
 
+    @Test
+    public void testFormatJsonOneeTochNiet() throws IOException {
+        String input = "[\"a\", asdf";
+        Reader in = new StringReader(input);
+        Writer out = new StringWriter();
+        MainReader.formatStream(out, in, createOptions());
+
+        String expected = "[\"a\", asdf";
+        Assert.assertEquals(expected, out.toString());
+    }
+
     /**
      * Simulates a tail where one thread of execution writes to the character stream, and another thread executes reads it and
      * runs the Bsonify filter.

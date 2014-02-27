@@ -32,14 +32,24 @@ output:
 
 **Usage examples**
 
-- In the project dir: `cat target/test-classes/test-input.txt | java -jar target/bsonify-0.4.jar`
-- Jar installed in ~/java: `tail logfile.txt | java -jar ~/java/bsonify-0.4.jar`
+Example In the bsonify project:  
+`cat target/test-classes/test-input.txt | java -jar target/bsonify-0.4.jar`
+
+Jar installed in ~/java:  
+`tail logfile.txt | java -jar ~/java/bsonify-0.4.jar`
+
+In cygwin use windows path for jar file:  
+`tail logfile.txt | java -jar "c:/java/bsonify-0.4.jar"`
+
+In cygwin when grepping, use --line-buffered:  
+`tail -F logfile.txt | grep --line-buffered 'SomeLogger' | java -jar "c:/java/bsonify-0.3.jar"`
 
 **Usage**
 
 TODO
 
 **Todo**
+- v Fix invalid json
 - Print usage
 - Debug option which prints the error, for example when the formatter encounters '{asdf}' in the stream it prints: `{<JSON ISSUE: Unexpected character ('a' (code 97)): was expecting double-quote to start field name>asdf}`
 

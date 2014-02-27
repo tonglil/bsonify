@@ -1,7 +1,5 @@
 package bs.bsonify;
 
-import java.io.Writer;
-
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonToken;
 
@@ -9,14 +7,12 @@ public class ParsingContext {
 
     private JsonToken token;
     private final JsonParser jp;
-    private final Writer target;
     private final JsonModel model;
 
-    public ParsingContext(JsonParser jp, Writer target, JsonToken token, JsonModel model) {
+    public ParsingContext(JsonParser jp, JsonToken token, JsonModel model) {
         super();
         this.token = token;
         this.jp = jp;
-        this.target = target;
         this.model = model;
     }
 
@@ -30,10 +26,6 @@ public class ParsingContext {
 
     public JsonParser jp() {
         return jp;
-    }
-
-    public Writer target() {
-        return target;
     }
 
     public JsonModel model() {

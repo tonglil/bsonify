@@ -2,6 +2,7 @@ package bs.bsonify;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
 
@@ -18,9 +19,10 @@ public final class JsonFormatter {
             JsonFactory jsonFactory = new JsonFactory();
             JsonParser jp = jsonFactory.createJsonParser(reader);
             JsonToken token = jp.nextToken();
-            ParsingContext ctx = new ParsingContext(jp, writer, token, new JsonModel());
+            Writer target = new StringWriter();
+            ParsingContext ctx = new ParsingContext(jp, token, new JsonModel());
 
-            Renderer renderer = new Renderer(writer, options);
+            Renderer renderer = new Renderer(target, options);
             parseJsonDispatchNewElement(ctx, renderer);
             
 
@@ -28,6 +30,7 @@ public final class JsonFormatter {
 
             long jsonCharsRead = peekCharsRead(jp);
 
+            writer.write(target.toString());
             return jsonCharsRead;
 
         } catch (JsonParseException e) {
