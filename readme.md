@@ -32,7 +32,7 @@ output:
 
 **Usage examples**
 
-Example In the bsonify project:  
+Example in the bsonify project:  
 `cat target/test-classes/test-input.txt | java -jar target/bsonify-1.0.jar`
 
 Jar installed in ~/java:  
