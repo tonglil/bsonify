@@ -13,8 +13,8 @@ public class MainReader {
     private static final int READ_AHEAD_LIMIT = 100000;
 
     public static void formatStream(Writer writer, Reader reader, Options options) throws IOException {
-        
-        // we need mark() and reset() 
+
+        // we need mark() and reset()
         Reader isr = new BufferedReader(reader);
 
         char[] buffer = new char[512];
@@ -27,7 +27,9 @@ public class MainReader {
             if (possiblyContainsJson) {
 
                 // first print non-json part
-                writer.write(Arrays.copyOf(buffer, jsonIndex));
+                if (!options.jsononly()) {
+                    writer.write(Arrays.copyOf(buffer, jsonIndex));
+                }
 
                 isr.reset();
                 isr.skip(jsonIndex);
@@ -52,12 +54,14 @@ public class MainReader {
 
             } else {
 
-                print(writer, buffer, bytesRead);
+                if (!options.jsononly()) {
+                    print(writer, buffer, bytesRead);
+                }
 
             }
-            
+
             writer.flush();
-            
+
             isr.mark(READ_AHEAD_LIMIT);
         }
 

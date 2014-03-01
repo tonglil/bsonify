@@ -3,6 +3,7 @@ package bs.bsonify;
 public class Options {
     private ColorScheme color = ColorScheme.LIGHT;
     private boolean compact;
+    private boolean jsononly;
     private String filename;
 
     public String filename() {
@@ -31,5 +32,13 @@ public class Options {
 
     public void setCompact(boolean compact) {
         this.compact = compact;
+    }
+
+    public boolean jsononly() {
+        return jsononly;
+    }
+
+    public void setJsononly(boolean jsononly) {
+        this.jsononly = jsononly;
     }
 }

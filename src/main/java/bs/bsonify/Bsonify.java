@@ -14,7 +14,7 @@ public class Bsonify {
 
     public static void main(String[] args) throws IOException {
 
-        if (help(args)) {
+        if (helpOrVersion(args)) {
             return;
         }
 
@@ -33,8 +33,11 @@ public class Bsonify {
             in = System.in;
         }
 
-        MainReader.formatStream(new OutputStreamWriter(System.out), new InputStreamReader(in), options);
+        OutputStreamWriter osw = new OutputStreamWriter(System.out);
+        InputStreamReader isw = new InputStreamReader(in);
+        MainReader.formatStream(osw, isw, options);
 
+        osw.close();
         in.close();
     }
 
@@ -49,28 +52,34 @@ public class Bsonify {
                 options.setColor(ColorScheme.LIGHT);
             } else if (arg.equals("-compact")) {
                 options.setCompact(true);
+            } else if (arg.equals("-jsononly")) {
+                options.setJsononly(true);
             } else if (!arg.contains("-") && !options.hasFilename()) {
                 options.setFilename(arg);
             } else {
-                throw new InvalidOptionException("bsonify: invalid option: '" + arg +"'");
+                throw new InvalidOptionException("bsonify: invalid option: '" + arg + "'");
             }
         }
         return options;
     }
 
-    private static boolean help(String[] args) {
+    private static boolean helpOrVersion(String[] args) {
         for (String arg : args) {
             if (arg.equals("--help") || arg.equals("--h")) {
-                printHelp();
+                printResource("/help.txt");
+                return true;
+            } else if (arg.equals("--version") || arg.equals("--v")) {
+                printResource("/version.txt");
                 return true;
             }
+
         }
 
         return false;
     }
 
-    private static void printHelp() {
-        InputStream in = Bsonify.class.getResourceAsStream("/help.txt");
+    private static void printResource(String resname) {
+        InputStream in = Bsonify.class.getResourceAsStream(resname);
         copy(in, System.out);
     }
 
