@@ -1,4 +1,4 @@
-Usage: java -jar bsonify.jar [OPTION]... [FILE]...
+Usage: java -jar bsonify.jar [OPTION]... [FILE]
 Format JSON fragments in FILE, or standard input, to standard output. Copies non-JSON content.
 Requires Java 5+
 

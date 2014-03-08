@@ -17,6 +17,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class MainReaderTest {
+    
     @Test
     public void testFormatPlainText() throws IOException {
         String noJsonStart = "asdf1234~`!@#$%^&*(\"):;\"']}=+-\n_,.<>/?";
@@ -80,6 +81,32 @@ public class MainReaderTest {
 
         String expected = "[\"a\", asdf";
         Assert.assertEquals(expected, out.toString());
+    }
+
+    @Test
+    public void testFormatObjectBetweenStringValues() throws IOException {
+        String input = "[\"a\", {\"b\": \"c\"}, \"d\"]";
+        Reader in = new StringReader(input);
+        Writer out = new StringWriter();
+        MainReader.formatStream(out, in, createOptions());
+
+        String expected = "[\"a\",\n    {\n        \"b\": \"c\"\n    },\n    \"d\"]";
+        Assert.assertEquals(expected, out.toString());
+    }
+
+    /**
+     * This won't happen very often, it needs to render properly
+     */
+    @Test
+    public void testFormatObjectBetweenValues() throws IOException {
+        String input = IOUtils.toString(getClass().getResourceAsStream("testFormatObjectBetweenValues.input.txt"));
+        Reader in = new StringReader(input);
+        Writer out = new StringWriter();
+        MainReader.formatStream(out, in, createOptions());
+
+        String expected = IOUtils.toString(getClass().getResourceAsStream("testFormatObjectBetweenValues.expected.txt"));
+        String actual = out.toString();
+        Assert.assertEquals(expected, actual);
     }
 
     /**

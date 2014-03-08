@@ -132,7 +132,9 @@ public final class Renderer extends Writer {
         case NUMBER_TRUE_FALSE_OR_NULL_VALUE:
         case NA_OR_EMBEDDED_VALUE:
         case END_ARRAY:
-            throwUnexpectedElement(prev, ElementType.START_OBJECT);
+            model.levelDown();
+            colorSymbol().append(COMMA);
+            appendNewLineAndIndentOnlyIfExpanded(model);
         default:
             break;
         }
@@ -219,10 +221,15 @@ public final class Renderer extends Writer {
             colorSymbol().append(COMMA).append(SPACE);
             colorValue();
             break;
+        case END_OBJECT:
+            append(COMMA);
+            appendNewLineAndIndent(model);
+            model.levelUp();
+            colorField();
+            break;
         case NONE:
         case START_OBJECT:
         case END_ARRAY:
-        case END_OBJECT:
             throwUnexpectedElement(prev, ElementType.STRING_VALUE);
         default:
             break;
@@ -244,10 +251,15 @@ public final class Renderer extends Writer {
             colorSymbol().append(COMMA).append(SPACE);
             colorValue();
             break;
+        case END_OBJECT:
+            append(COMMA);
+            appendNewLineAndIndent(model);
+            model.levelUp();
+            colorField();
+            break;
         case NONE:
         case START_OBJECT:
         case END_ARRAY:
-        case END_OBJECT:
             throwUnexpectedElement(prev, ElementType.NUMBER_TRUE_FALSE_OR_NULL_VALUE);
         default:
             break;
