@@ -1,14 +1,14 @@
 Formats the JSON objects in a stream or file.
 
-Typical usage is to tail a logfile where we want to highlight and format any JSON content.
+Typical usage is to tail a logfile in which we want to highlight and format any JSON content. 
 
 Properties:
 
-* Detects and tries to pretty-print all JSON fragments in the input
-* Swallows everything, it just copies the non-JSON parts
-* Uses colors for Bash shell (and cygwin)
-* Requires Java 5+
-* Uses [Jackson parser](http://jackson.codehaus.org/) which is included in the executable
+* Detects and tries to format all JSON fragments in the input, just echoes it if JSON is malformed
+* Uses indentation and colors
+* Coloring for Bash shell (and cygwin)
+* Java 5 application
+* Uses Jackson parser which is included in the jar
 * Builds with maven3
 
 **Example**
@@ -23,34 +23,31 @@ output:
 
 **Install**
 
-1. If not present, install Java. Check Java version with `java -version`
-1. Download the [bsonify jar file](https://bitbucket.org/bartswen/bsonify/downloads/bsonify.jar) (or build from source) into a known location, for example ~/java
+1. Download the jar file (or build from source) into a known location, for example ~/java
 
 **Build from source**
 
 1. Install [maven](http://maven.apache.org/)
-1. Execute `mvn package`
-1. The product is target/bsonify.jar
+1. `mvn package`
 
 **Usage examples**
 
 Example in the bsonify project:  
-`cat target/test-classes/test-input.txt | java -jar target/bsonify.jar`
+`cat target/test-classes/test-input.txt | java -jar target/bsonify-1.0.jar`
 
 Jar installed in ~/java:  
-`tail logfile.txt | java -jar ~/java/bsonify.jar`
+`tail logfile.txt | java -jar ~/java/bsonify-1.0.jar`
 
 In cygwin use windows path for jar file:  
-`tail logfile.txt | java -jar "c:/java/bsonify.jar"`
+`tail logfile.txt | java -jar "c:/java/bsonify-1.0.jar"`
 
 In cygwin when grepping, use --line-buffered:  
-`tail -F logfile.txt | grep --line-buffered 'SomeLogger' | java -jar "c:/java/bsonify.jar"`
+`tail -F logfile.txt | grep --line-buffered 'SomeLogger' | java -jar "c:/java/bsonify-1.0.jar"`
 
 **Usage**
 
-    Usage: java -jar bsonify.jar [OPTION]... [FILE]...
+    Usage: java -jar bsonify.jar [OPTION]... [FILE]
     Format JSON fragments in FILE, or standard input, to standard output. Copies non-JSON content.
-    Requires Java 5+
 
       -mono                    monochrome, no colors
       -dark                    use dark colors, use this on a light background
@@ -80,11 +77,5 @@ The `Renderer` is responsible for the actual JSON formtting and coloring. Format
 
 Most tests are high level. The [SUT](http://xunitpatterns.com/SUT.html) mostly comprises all main components. One interesting test is the `MainReaderTest.testFormatStreaming()`. It simulates the streaming mode where one thread of execution writes to the stream, and another thread reads from it by running the `MainReader.formatStream()`.
 
-**Related**
 
-A great JSON commandline tool is [trentm json](https://github.com/trentm/json). It contains links to other tools if you actually need to process the JSON.
-
-**TODO**
-
-- Bug: object in array after string or other value throws exception
-
+ 
