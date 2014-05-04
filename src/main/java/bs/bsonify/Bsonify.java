@@ -54,7 +54,7 @@ public class Bsonify {
                 options.setCompact(true);
             } else if (arg.equals("-jsononly")) {
                 options.setJsononly(true);
-            } else if (!arg.contains("-") && !options.hasFilename()) {
+            } else if (!arg.startsWith("-") && !options.hasFilename()) {
                 options.setFilename(arg);
             } else {
                 throw new InvalidOptionException("bsonify: invalid option: '" + arg + "'");
